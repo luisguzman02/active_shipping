@@ -662,10 +662,12 @@ module ActiveShipping
           description = event.at('EventDescription').text
           type_code = event.at('EventType').text
 
-          time          = Time.parse(event.at('Timestamp').text)
+          timestamp     = event.at('Timestamp').text
+          time          = Time.parse(timestamp)
+          zoneless      = (timestamp =~ /[-+]\d{2}:\d{2}$/).blank?
           zoneless_time = time.utc
 
-          shipment_events << ShipmentEvent.new(description, zoneless_time, location, description, type_code)
+          shipment_events << ShipmentEvent.new(description, zoneless_time, location, description, type_code, zoneless)
         end
         shipment_events = shipment_events.sort_by(&:time)
 

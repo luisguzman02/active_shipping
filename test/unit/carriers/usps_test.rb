@@ -71,6 +71,16 @@ class USPSTest < ActiveSupport::TestCase
     assert_equal '9102901000462189604217', response.tracking_number
   end
 
+  test "tracking: shipment_events have zoneless=true for the timestamp received from remote" do
+    @carrier.expects(:commit).returns(@tracking_response)
+    response = @carrier.find_tracking_info('9102901000462189604217', :test => true)
+
+    response.shipment_events.each do |shipment_event|
+      assert shipment_event.time.present?, message: "Event did not have a timestamp"
+      assert_predicate shipment_event, :zoneless?
+    end
+  end
+
   def test_find_tracking_info_should_return_shipment_events_in_ascending_chronological_order
     @carrier.expects(:commit).returns(@tracking_response)
     response = @carrier.find_tracking_info('9102901000462189604217', :test => true)

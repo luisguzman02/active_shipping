@@ -469,6 +469,15 @@ class FedExTest < ActiveSupport::TestCase
     assert_equal 'IT', response.latest_event.type_code
   end
 
+  test "tracking: shipment_events have zoneless=false for the timestamp received from remote" do
+    mock_response = xml_fixture('fedex/tracking_response_in_transit')
+    @carrier.expects(:commit).returns(mock_response)
+    response = @carrier.find_tracking_info('123456789012')
+
+    shipment_event = response.shipment_events.first
+    refute_predicate shipment_event, :zoneless?
+  end
+
   def test_tracking_info_for_shipment_exception
     mock_response = xml_fixture('fedex/tracking_response_shipment_exception')
     @carrier.expects(:commit).returns(mock_response)
