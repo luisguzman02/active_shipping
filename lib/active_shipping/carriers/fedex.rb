@@ -13,6 +13,8 @@ module ActiveShipping
     TEST_URL = 'https://gatewaybeta.fedex.com:443/xml'
     LIVE_URL = 'https://gateway.fedex.com:443/xml'
 
+    TIMEZONE_OFFSET_FROM_DATE_REGEX = /[-+](\d{2}:\d{2})$/
+
     CARRIER_CODES = {
       "fedex_ground" => "FDXG",
       "fedex_express" => "FDXE"
@@ -664,7 +666,7 @@ module ActiveShipping
 
           timestamp     = event.at('Timestamp').text
           time          = Time.parse(timestamp)
-          zoneless      = (timestamp =~ /[-+]\d{2}:\d{2}$/).blank?
+          zoneless      = (timestamp =~ TIMEZONE_OFFSET_FROM_DATE_REGEX).blank?
           zoneless_time = time.utc
 
           shipment_events << ShipmentEvent.new(description, zoneless_time, location, description, type_code, zoneless)
